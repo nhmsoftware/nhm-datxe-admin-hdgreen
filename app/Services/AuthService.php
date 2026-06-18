@@ -4,6 +4,7 @@ namespace App\Services;
 
 use App\Core\ServiceReturn;
 use App\Models\User;
+use App\Models\User\Enums\UserRole;
 
 class AuthService
 {
@@ -20,6 +21,9 @@ class AuthService
         $user =  $this->userModel->where('phone', $phone)->first();
         if(!$user) {
             return ServiceReturn::error('Số điện thoại không tồn tại', null, null, 404);
+        }
+        if($user->role != UserRole::Admin->value) {
+            return ServiceReturn::error('Bạn không có quyền truy cập', null, null, 403);
         }
         // Thực hiện xác thực người dùng dựa trên số điện thoại và mật khẩu
         if (auth()->attempt(['phone' => $phone, 'password' => $password])) {
