@@ -15,6 +15,7 @@ use App\Models\User\MerchantProfile;
 use App\Models\User\UserDevice;
 use App\Models\User\UserReviewApplication;
 use Database\Factories\UserFactory;
+use Filament\Models\Contracts\HasName;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Database\Eloquent\Relations\HasOne;
@@ -22,7 +23,7 @@ use Illuminate\Database\Eloquent\SoftDeletes;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
 
-class User extends Authenticatable
+class User extends Authenticatable implements HasName
 {
     /** @use HasFactory<UserFactory> */
     use HasFactory;
@@ -127,6 +128,15 @@ class User extends Authenticatable
             ?? $this->merchantProfile?->store_name
             ?? $this->attributes['name']
             ?? null;
+    }
+
+    public function getFilamentName(): string
+    {
+        return $this->full_name
+            ?? $this->attributes['name']
+            ?? $this->email
+            ?? $this->phone
+            ?? 'User #' . $this->getKey();
     }
 
     public function getGenderAttribute(): ?Gender
