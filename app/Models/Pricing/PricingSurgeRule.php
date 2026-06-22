@@ -4,8 +4,10 @@ declare(strict_types=1);
 
 namespace App\Models\Pricing;
 
+use App\Models\Ride\VehicleTypeRef;
 use Illuminate\Database\Eloquent\Concerns\HasUlids;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\Relations\BelongsTo;
 
 final class PricingSurgeRule extends Model
 {
@@ -32,5 +34,10 @@ final class PricingSurgeRule extends Model
             'multiplier' => 'float',
             'is_active' => 'boolean',
         ];
+    }
+
+    public function vehicleTypeRef(): BelongsTo
+    {
+        return $this->belongsTo(VehicleTypeRef::class, 'vehicle_type_id', 'id');
     }
 }

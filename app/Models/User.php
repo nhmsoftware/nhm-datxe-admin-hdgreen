@@ -101,6 +101,13 @@ class User extends Authenticatable implements HasName
         return $this->hasMany(UserReviewApplication::class);
     }
 
+    public function latestDriverApplication(): HasOne
+    {
+        return $this->hasOne(UserReviewApplication::class)
+            ->where('kyc_type', KycType::Driver->value)
+            ->latestOfMany();
+    }
+
     public function isCustomer(): bool
     {
         return $this->role === UserRole::Customer;
