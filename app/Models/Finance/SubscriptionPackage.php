@@ -5,11 +5,14 @@ declare(strict_types=1);
 namespace App\Models\Finance;
 
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Database\Eloquent\SoftDeletes;
 
 final class SubscriptionPackage extends Model
 {
     use SoftDeletes;
+
+    protected $table = 'subscription_packages';
 
     protected $fillable = [
         'name',
@@ -30,5 +33,10 @@ final class SubscriptionPackage extends Model
             'service_fee_reduction_percent' => 'float',
             'is_active' => 'boolean',
         ];
+    }
+
+    public function driverSubscriptions(): HasMany
+    {
+        return $this->hasMany(DriverSubscription::class, 'package_id');
     }
 }

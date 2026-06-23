@@ -4,37 +4,44 @@ namespace App\Services;
 
 use App\Core\ServiceReturn;
 use App\Models\User;
-use App\Models\User\Enums\UserRole;
+use Filament\Facades\Filament;
 
 class AuthService
 {
     public function __construct(
         protected User $userModel
-    )
-    {
+    ) {
     }
 
-    public function handleLoginUser($credentials): ServiceReturn
+    public function handleLoginUser(array $credentials): ServiceReturn
     {
         $phone = $credentials['phone'];
         $password = $credentials['password'];
-        $user =  $this->userModel->where('phone', $phone)->first();
-        if(!$user) {
+
+        $user = $this->userModel->where('phone', $phone)->first();
+
+        if (! $user) {
             return ServiceReturn::error('Số điện thoại không tồn tại', null, null, 404);
         }
-        if($user->role != UserRole::Admin->value) {
+
+        if (! $user->isAdmin()) {
             return ServiceReturn::error('Bạn không có quyền truy cập', null, null, 403);
         }
-        // Thực hiện xác thực người dùng dựa trên số điện thoại và mật khẩu
-        if (auth()->attempt(['phone' => $phone, 'password' => $password])) {
-            // Xác thực thành công
+
+        if (! $user->isActive()) {
+            return ServiceReturn::error('Tài khoản quản trị hiện đang bị khóa hoặc ngừng hoạt động', null, null, 403);
+        }
+
+        if (Filament::auth()->attempt([
+            'phone' => $phone,
+            'password' => $password,
+        ])) {
             return ServiceReturn::success([
                 'message' => 'Đăng nhập thành công',
-                'user' => auth()->user(),
+                'user' => Filament::auth()->user(),
             ]);
         }
 
-        // Xác thực thất bại
         return ServiceReturn::error('Số điện thoại hoặc mật khẩu không đúng', null, null, 401);
     }
 }

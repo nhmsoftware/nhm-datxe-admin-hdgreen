@@ -15,7 +15,9 @@ use App\Models\User\MerchantProfile;
 use App\Models\User\UserDevice;
 use App\Models\User\UserReviewApplication;
 use Database\Factories\UserFactory;
+use Filament\Models\Contracts\FilamentUser;
 use Filament\Models\Contracts\HasName;
+use Filament\Panel;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Database\Eloquent\Relations\HasOne;
@@ -23,7 +25,7 @@ use Illuminate\Database\Eloquent\SoftDeletes;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
 
-class User extends Authenticatable implements HasName
+class User extends Authenticatable implements HasName, FilamentUser
 {
     /** @use HasFactory<UserFactory> */
     use HasFactory;
@@ -32,6 +34,13 @@ class User extends Authenticatable implements HasName
     use SoftDeletes;
 
     protected $table = 'users';
+
+    public function canAccessPanel(Panel $panel): bool
+    {
+        return $panel->getId() === 'admin'
+            && $this->isAdmin()
+            && $this->isActive();
+    }
 
     protected $fillable = [
         'name',

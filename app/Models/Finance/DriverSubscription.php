@@ -12,6 +12,8 @@ final class DriverSubscription extends Model
 {
     use SoftDeletes;
 
+    protected $table = 'driver_subscriptions';
+
     protected $fillable = [
         'driver_id',
         'package_id',
@@ -36,5 +38,10 @@ final class DriverSubscription extends Model
     public function package(): BelongsTo
     {
         return $this->belongsTo(SubscriptionPackage::class, 'package_id');
+    }
+
+    public function driver(): BelongsTo
+    {
+        return $this->belongsTo(\App\Models\User::class, 'driver_id');
     }
 }

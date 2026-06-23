@@ -10,6 +10,12 @@ final class CreditWalletConfig extends Model
 {
     protected $table = 'credit_wallet_configs';
 
+    protected $attributes = [
+        'min_balance' => 50000,
+        'auto_lock' => true,
+        'commission_rule' => 'Default rule',
+    ];
+
     protected $fillable = [
         'min_balance',
         'auto_lock',

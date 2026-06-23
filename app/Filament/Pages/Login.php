@@ -2,13 +2,14 @@
 
 namespace App\Filament\Pages;
 
-use App\Modules\Notification\Model\Notification;
 use App\Services\AuthService;
 use DanHarrin\LivewireRateLimiting\Exceptions\TooManyRequestsException;
 use Filament\Auth\Http\Responses\LoginResponse;
 use Filament\Auth\Pages\Login as PagesLogin;
 use Filament\Forms\Components\TextInput;
+use Filament\Notifications\Notification;
 use Filament\Schemas\Schema;
+use Illuminate\Validation\ValidationException;
 use Throwable;
 
 class Login extends PagesLogin
@@ -75,22 +76,29 @@ class Login extends PagesLogin
                 ]) : null)
                 ->danger()
                 ->send();
+
+            return null;
         }
+
         $data = $this->form->getState();
 
-
-        $credentials = [
+        $result = $this->authService->handleLoginUser([
             'phone' => $data['phone'],
-            'password'          => $data['password'],
-        ];
-
-        $result = $this->authService->handleLoginUser($credentials);
+            'password' => $data['password'],
+        ]);
 
         if ($result->isError()) {
             if ($result->getException() instanceof Throwable) {
                 throw $result->getException();
             }
+
+            throw ValidationException::withMessages([
+                'data.phone' => $result->getMessage(),
+            ]);
         }
+
+        session()->regenerate();
+
         return app(LoginResponse::class);
     }
 }
